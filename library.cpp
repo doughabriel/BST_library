@@ -2,7 +2,7 @@
 Cognome: Balcan
 Nome: Stelian Gabrielle
 Classe: 4C
-Esercizio: Insert for BSTs
+Esercizio: BSTs Library
 */
  
 #include <iostream>
@@ -22,6 +22,8 @@ struct Node{
 };
 
 Node* insert(Node* root, int valore);
+bool search(Node* root, int valore);
+
 
 int main(){
     
@@ -44,4 +46,19 @@ Node* insert(Node* root, int valore){
     }
 
     return root;
+}
+
+bool search(Node* root, int valore){
+    while(root != nullptr){
+        if(root->data == valore){
+            return true;
+        }
+
+        if(valore > root->data){
+            root = root->r_child;
+        }else{
+            root = root->l_child;
+        }
+    }
+    return false;
 }
