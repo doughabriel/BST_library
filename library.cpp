@@ -23,7 +23,11 @@ struct Node{
 
 Node* insert(Node* root, int valore);
 bool search(Node* root, int valore);
-
+Node* findMin(Node* root);
+Node* findMax(Node* root);
+int countNodes(Node* root);
+int countLeaves(Node* root);
+int countInRange(Node* root, int min, int max);
 
 int main(){
     
@@ -61,4 +65,56 @@ bool search(Node* root, int valore){
         }
     }
     return false;
+}
+Node* findMin(Node* root){
+    if(root == nullptr){
+        return nullptr;
+    }
+    Node* current = root;
+    while(current->l_child != nullptr){
+        current = current->l_child;
+    }
+    return current;
+
+}
+Node* findMax(Node* root){
+    if(root == nullptr){
+        return nullptr;
+    }
+    Node* current = root;
+    while(current->r_child != nullptr){
+        current = current->r_child;
+    }
+    return current;
+
+}
+
+int countNodes(Node* root){
+    if(root == nullptr){
+        return 0;
+    }
+    return 1 + countNodes(root->l_child) + countNodes(root->r_child);
+}
+
+int countLeaves(Node* root){
+    if(root == nullptr){
+        return 0;
+    }
+    if(root->l_child == nullptr && root->r_child == nullptr){
+        return 1;
+    }
+    return countLeaves(root->l_child) + countLeaves(root->r_child);
+}
+
+int countInRange(Node* root, int min, int max){
+    if(root == nullptr){
+        return 0;
+    }
+    if(root->data < min){
+        return countInRange(root->r_child, min, max);
+    }else if(root->data > max){
+        return countInRange(root->l_child, min, max);
+    }else{
+        return 1 + countInRange(root->l_child, min, max) + countInRange(root->r_child, min, max);
+    }
 }
