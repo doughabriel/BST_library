@@ -2,119 +2,260 @@
 Cognome: Balcan
 Nome: Stelian Gabrielle
 Classe: 4C
-Esercizio: BSTs Library
+Esercizio: BSTs Library (Class refactoring)
 */
- 
+
 #include <iostream>
-#include <cstdlib>
-#include <string>
-#include <vector>
 using namespace std;
 
-struct Node{
+class Node {
+private:
+
     int data;
-    Node* l_child;
-    Node* r_child;
-    Node(int n){
-        data = n;
-        l_child = r_child = nullptr;
+    Node* left;
+    Node* right;
+
+public:
+
+    Node(int k){
+        data = k;
+        left = right = nullptr;
     }
+
+    int getData(){
+        return data;
+    }
+
+    Node* getLeft(){
+        return left;
+    }
+
+    Node* getRight(){
+        return right;
+    }
+
+    void setData(int n){
+        data = n;
+    }
+
+    void setLeft(Node* n){
+        left = n;
+    }
+
+    void setRight(Node* n){
+        right = n;
+    }
+
+    bool isLeaf(){
+        if(left == nullptr && right == nullptr){
+            return true;
+        }
+        
+        return false;
+
+    }
+
+    void inOrder(){
+        left->inOrder();
+        cout << getData() << " ";
+        right->inOrder();
+    }
+
+    int height(){
+        if(left == nullptr && right == nullptr){
+            return 1;
+        }
+
+        int leftHeight = 0;
+        int rightHeight = 0;
+
+        if(left != nullptr){
+            leftHeight = left->height();
+        }
+        
+        if(right != nullptr){
+            rightHeight = right->height();
+        }
+
+        if(leftHeight > rightHeight){
+            return 1 + leftHeight;
+        }
+
+        return 1 + rightHeight;
+
+    }
+
+    int contaFoglie(){
+        if(isLeaf()){
+            return 1;
+        }
+
+        int count = 0;
+
+        if(left != nullptr){
+            count = count + left->contaFoglie();
+        }
+
+        if(right != nullptr){
+            count = count + right->contaFoglie();
+        }
+
+        return count;
+
+    }
+
+    void svuota(){
+        if(left != nullptr){
+            left->svuota();
+        }
+
+        if(right != nullptr){
+            right->svuota();
+        }
+        
+        delete this;
+
+    };
+
 };
 
-Node* insert(Node* root, int valore);
-bool search(Node* root, int valore);
-Node* findMin(Node* root);
-Node* findMax(Node* root);
-int countNodes(Node* root);
-int countLeaves(Node* root);
-int countInRange(Node* root, int min, int max);
+class BST {
+private:
+    Node* root;         // radice dell'albero, nullptr se l'albero e' vuoto
+    int numNodi;        // numero di chiavi presenti
 
-int main(){
-    
-    system("PAUSE");
-    return 0;
-}
 
-Node* insert(Node* root, int valore){
-    if(root == nullptr){
-        return new Node(valore);
-    }
-    if(root->data == valore){
-        return root;
+public:
+
+    BST(){
+        root = nullptr;
+        numNodi = 0;
     }
 
-    if(valore > root->data){
-        root->r_child = insert(root->r_child, valore);
-    }else{
-        root->l_child = insert(root->l_child, valore);
-    }
-
-    return root;
-}
-
-bool search(Node* root, int valore){
-    while(root != nullptr){
-        if(root->data == valore){
+    bool isEmpty(){
+        if(root == nullptr){
             return true;
         }
 
-        if(valore > root->data){
-            root = root->r_child;
-        }else{
-            root = root->l_child;
+        return false;
+
+    }
+
+    int size(){
+        return numNodi;
+    }
+
+    bool insert(int k){
+        if(root == nullptr){
+            root = new Node(k);
+            return true; 
         }
-    }
-    return false;
-}
-Node* findMin(Node* root){
-    if(root == nullptr){
-        return nullptr;
-    }
-    Node* current = root;
-    while(current->l_child != nullptr){
-        current = current->l_child;
-    }
-    return current;
 
-}
-Node* findMax(Node* root){
-    if(root == nullptr){
-        return nullptr;
-    }
-    Node* current = root;
-    while(current->r_child != nullptr){
-        current = current->r_child;
-    }
-    return current;
+        Node* dad = nullptr;
+        Node* current = root;
 
-}
+        while(current != nullptr) {
+            dad = current;
+            if(k < current->getData()){
+                current = current->getLeft();
+            }else if(k > current->getData()){
+                current = current->getRight();
+            }else{
+                return false;
+            }
+        }
 
-int countNodes(Node* root){
-    if(root == nullptr){
-        return 0;
+        if(k < dad->getData()){
+            dad->setLeft(new Node(k));
+        }else{
+            dad->setRight(new Node(k));
+        }
+        
+        numNodi++;
+        return true;
+        
     }
-    return 1 + countNodes(root->l_child) + countNodes(root->r_child);
-}
 
-int countLeaves(Node* root){
-    if(root == nullptr){
-        return 0;
-    }
-    if(root->l_child == nullptr && root->r_child == nullptr){
-        return 1;
-    }
-    return countLeaves(root->l_child) + countLeaves(root->r_child);
-}
+    bool search(int k){
+        if(root == nullptr){
+            return false;
+        }
 
-int countInRange(Node* root, int min, int max){
-    if(root == nullptr){
-        return 0;
+        Node* current = root;
+
+        while(current != nullptr){
+            if(k < current->getData()){
+                current = current->getLeft();
+            }else if(k > current->getData()){
+                current = current->getRight();
+            }else{
+                return true;
+            }
+        }
+
+        return false;
+
     }
-    if(root->data < min){
-        return countInRange(root->r_child, min, max);
-    }else if(root->data > max){
-        return countInRange(root->l_child, min, max);
-    }else{
-        return 1 + countInRange(root->l_child, min, max) + countInRange(root->r_child, min, max);
+
+    void inOrder(){
+        if(root == nullptr){
+            return;
+        }
+        
+        root->inOrder();
+
     }
-}
+
+    int height(){
+        if(root == nullptr){
+            return 0;
+        }
+        return root->height();
+    }
+
+    int minimo(){
+        if(root == nullptr){
+            return -1;
+        }
+
+        Node* current = root;
+
+        while(current->getLeft() != nullptr){
+            current = current->getLeft();
+        }
+
+        return current->getData();
+    }
+
+    int massimo(){
+        if(root == nullptr){
+            return -1;
+        }
+
+        Node* current = root;
+
+        while(current->getRight() != nullptr){
+            current = current->getRight();
+        }
+
+        return current->getData();
+    }
+
+    void svuota(){
+        if(root != nullptr){
+            root->svuota();
+        }
+
+        root = nullptr;
+        numNodi = 0;
+    };
+
+    int contaFoglie(){
+        if(root == nullptr){
+            return 0;
+        }
+
+        return root->contaFoglie();
+    }
+
+};
